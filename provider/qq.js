@@ -3,20 +3,15 @@ const insure = require("./insure");
 const request = require("../request");
 
 const search = info => {
-  let url =
-    "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?" +
-    "ct=24&qqmusic_ver=1298&new_json=1&remoteplace=txt.yqq.center" +
-    "&searchid=46804741196796149&t=0&aggr=1&cr=1&catZhida=1&lossless=0" +
-    "&flag_qc=0&p=1&n=20&w=" +
-    encodeURIComponent(info.keyword) +
-    "&g_tk=5381&jsonpCallback=MusicJsonCallback10005317669353331&loginUin=0&hostUin=0" +
-    "&format=jsonp&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0";
+  let url = `http://mess.xu1s.com/tencent/search?keyword=${encodeURIComponent(
+    info.keyword
+  )}&type=song`;
 
   return request("GET", url)
-    .then(response => response.jsonp())
+    .then(response => response.json())
     .then(jsonBody => {
-      let matched = jsonBody.data.song.list[0];
-      if (matched) return matched.file.media_mid;
+      let matched = jsonBody.data.list[0];
+      if (matched) return matched.songmid;
       else return Promise.reject();
     });
 };
@@ -30,18 +25,20 @@ const track = id => {
     .then(res => res.json())
     .then(res => res.data[0].file)
     .then(files => {
+      console.log(files);
       if (files.size_flac) {
         return "flac";
       } else if (files.size_320mp3) {
         return "320";
-      } else if (files.ize_192aac) {
-        return "192";
       } else {
         return "128";
       }
     })
     .then(
-      quality => `http://mess.xu1s.com/tencent/url?id=${id}&quality=${quality}`
+      quality =>
+        `http://mess.xu1s.com/tencent/url/${quality}/${id}.${
+          quality === "flac" ? "flac" : "mp3"
+        }`
     );
 };
 
