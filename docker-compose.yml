@@ -2,8 +2,10 @@ version: '3'
 
 services:
   unblockneteasemusic:
-    image: nondanee/unblockneteasemusic
+    build: .
     environment:
       NODE_ENV: production
     ports:
-      - 8080:8080
+      - 0.0.0.0:80:8080
+      - 0.0.0.0:443:8081
+    command: --port 8080:8081 -s
